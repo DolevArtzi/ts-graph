@@ -6,10 +6,5 @@ export class Queue<T> extends VariedOrderCollection<T> {
 
     remove(): T | undefined {
         return this.storage.shift();
-    //     if (!x) {
-    //         throw new TypeError("Remove on empty queue");
-    //     }
-    //     return x;
-    // }
     }
 }
