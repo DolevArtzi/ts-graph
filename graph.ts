@@ -9,15 +9,17 @@ const dummy : vertex = -1;
 //Author: Dolev Artzi
 export class Graph {
     private adjTable : Map<vertex,Set<vertex>>;
-    readonly max_size : number;
+    private max_size : number;
     private verbose : boolean;
-    // private marked : Set<vertex>;
-    // private parents : Set<[vertex,vertex]>;
 
+
+    private setMaxSize(n:number) {
+        this.max_size = n > 2e4 ? 2e4 : n;
+    }
 
     constructor(max_size : number = 20, verbose : boolean = false) {
         this.adjTable = new Map<vertex,Set<vertex>>();
-        this.max_size = max_size > 1e5 ? 1e5 : max_size;
+        this.setMaxSize(max_size);
         this.verbose = verbose;
     }
 
@@ -39,6 +41,10 @@ export class Graph {
         const res =  v1_neighbors?.has(v2) && v2_neighbors?.has(v1);
         if (this.verbose) console.log(`edge [${[v1,v2]}] ${res ? 'exists' : 'does not exist'}`);
         return res;
+    }
+
+    clear() {
+        this.adjTable = new Map();
     }
 
     addVertex(v : vertex) : boolean {
@@ -232,19 +238,71 @@ export class Graph {
                 }
             }
         }    
-        console.log(`size ${this.adjTable.size}`);
 
         const curr_vertices = Array.from(this.adjTable.keys());
-        // console.log(curr_vertices);
 
         for (let i = 0; i < curr_vertices.length; i++) {
             for (let j = i + 1; j < curr_vertices.length; j++) {
                 if (this.includeFromProbability(edge_probability, Math.random())) {
-                    // console.log(curr_vertices[i],curr_vertices[j],this.adjTable.size)
                     this.addEdge([curr_vertices[i],curr_vertices[j]]);
                 }
             }
             
         }
     }
+
+    private ErdosReiniPrime(n:number,p:number) {
+        this.clear();
+        this.setMaxSize(n);
+        this.randomGraph(1,p);
+    }
+
+    ErdosReini(n,f : number | ((x : number) => number)) {
+        if (typeof f === 'number') {
+            this.ErdosReiniPrime(n,f);
+        } else {
+            this.ErdosReini(n, f(n));
+        }
+    }
+
+    Kn(n) {
+        this.ErdosReini(n,1);
+    }
+
+    private f(...args) {
+        console.log(...args);
+    }
+
+    private degreeCalc(f,b) {
+        if (this.size() === 0) {
+            return b;
+        } 
+
+        let acc = b; 
+
+        const entries = Array.from(this.adjTable.entries());
+        entries.forEach(v => {
+            acc = f(acc,v[1].size);
+        })
+
+        return acc;
+    }
+
+    maxDegree() : number {
+        return this.degreeCalc((x,y) => Math.max(x,y), 0);
+    }
+
+    totalEdges() : number {
+        return this.totalDegree() / 2;
+    }
+    
+    totalDegree() : number {
+        return this.degreeCalc((x,y) => x+y,0);
+    }
+
+    averageDegree() : number {
+        if (this.size() == 0) return 0;
+        return this.totalDegree() / this.size();
+    }
+
 }
