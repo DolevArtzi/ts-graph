@@ -11,13 +11,13 @@ export class Graph {
     private adjTable : Map<vertex,Set<vertex>>;
     readonly max_size : number;
     private verbose : boolean;
-    private marked : Set<vertex>;
-    private parents : Set<[vertex,vertex]>;
+    // private marked : Set<vertex>;
+    // private parents : Set<[vertex,vertex]>;
 
 
     constructor(max_size : number = 20, verbose : boolean = false) {
         this.adjTable = new Map<vertex,Set<vertex>>();
-        this.max_size = max_size;
+        this.max_size = max_size > 1e5 ? 1e5 : max_size;
         this.verbose = verbose;
     }
 
@@ -54,8 +54,8 @@ export class Graph {
 
     //should only be called if v1 and v2 are in the graph
     private _addEdge([v1,v2]: edge) {
-        this.adjTable.get(v1).add(v2);
-        this.adjTable.get(v2).add(v1);
+        this.adjTable.get(v1)?.add(v2);
+        this.adjTable.get(v2)?.add(v1);
     }
     
     addEdge([v1,v2] : edge) : boolean {
@@ -99,7 +99,7 @@ export class Graph {
 
     neighbors(v1 : vertex) : Set<vertex> {
         if (!this.exists(v1)) return new Set();
-        return this.adjTable.get(v1);
+        return this.adjTable.get(v1)!;
     }
 
     removeEdge([v1,v2] : edge) : boolean {
@@ -204,5 +204,47 @@ export class Graph {
         }
 
         return [path,found];
+    }
+
+    print() {
+        console.log(this.adjTable);
+    }
+
+
+
+    private includeFromProbability(p, random_outcome) {
+        return p - random_outcome > 0;
+      }
+    
+    
+    randomGraph(vertex_probability:number, edge_probability:number,includeAllV = false) {
+        if (includeAllV) vertex_probability = 1;
+        this.adjTable = new Map();
+        
+        if (vertex_probability === 1) {
+            for (let i = 0; i < this.max_size; i++) {
+                this.addVertex(i);
+            }
+        } else {
+            for (let i = 0; i < this.max_size; i++) {
+                if (this.includeFromProbability(vertex_probability,Math.random())) {
+                    this.addVertex(i);
+                }
+            }
+        }    
+        console.log(`size ${this.adjTable.size}`);
+
+        const curr_vertices = Array.from(this.adjTable.keys());
+        // console.log(curr_vertices);
+
+        for (let i = 0; i < curr_vertices.length; i++) {
+            for (let j = i + 1; j < curr_vertices.length; j++) {
+                if (this.includeFromProbability(edge_probability, Math.random())) {
+                    // console.log(curr_vertices[i],curr_vertices[j],this.adjTable.size)
+                    this.addEdge([curr_vertices[i],curr_vertices[j]]);
+                }
+            }
+            
+        }
     }
 }
