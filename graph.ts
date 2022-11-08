@@ -14,7 +14,7 @@ export class Graph {
 
 
     private setMaxSize(n:number) {
-        this.max_size = n > 2e4 ? 2e4 : n;
+        this.max_size = Math.min(2e4,n);
     }
 
     constructor(max_size : number = 20, verbose : boolean = false) {
@@ -286,6 +286,16 @@ export class Graph {
         })
 
         return acc;
+    }
+
+    verticesOfDegreeD(d) {
+        let count = 0;
+        const entries = Array.from(this.adjTable.entries());
+        for (let i = 0; i < entries.length; i++) {
+            if (entries[i][1].size === d) count++;
+            
+        }
+        return count;
     }
 
     maxDegree() : number {
