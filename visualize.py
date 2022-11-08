@@ -16,9 +16,14 @@ def getCoords(filename):
 
 x,y = getCoords('output.txt')
 # x1,y1 = getCoords('out1.txt')
-# plt.plot(x,y,label = 'max degree')
+plt.plot(x,y,label = 'max degree')
+
+
+#lobf
 m,b = np.polyfit(x,y,1)
 print(f'm={m},b={b}')
+
+
 # plt.plot(x1,y1,label = 'average degree')
 
 
