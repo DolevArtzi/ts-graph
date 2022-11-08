@@ -3,4 +3,7 @@
 - adjacency table
 
 ----
-- jest hasn't been set up in this repo, nor has ts-node
+- "npm test" to run tests
+- "./run.sh" to run, modify experiment.ts and visualize.py
+  - if permission denied: "chmod +x run.sh"
+
